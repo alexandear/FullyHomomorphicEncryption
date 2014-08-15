@@ -1,0 +1,66 @@
+% !TEX root = ../main.tex
+% !TeX encoding = utf8
+
+
+\section{Library implementation}
+
+Since the discovery of a fully homomorphic cryptographic scheme by Gentry, a number of different schemes have been proposed that apply the bootstrap technique of Gentry's original approach. However, to date no implementation of fully homomorphic encryption has been publicly released. This poster presents a working implementation of the Smart-Vercauteren scheme that will be freely available and gives substantial implementation hints.
+
+\subsection{Somewhat Homomorphic Scheme}
+
+In the somewhat homomorphic encryption scheme as defined by Smart et al. decryption works only as long as the cypher text noise (more precisely the coefficients of the $C(x)$) is within certain bounds $r$. These bounds depend mainly on the parameter $N$. For our implementation and choice of parameters we get $r = 2^\nu / (2 \sqrt{N}) = \frac{2^384}{16}$. Besides this restriction, the general idea is the same as with the fully homomorphic scheme. $G(x)$ generates an ideal $\tfr{p} = \left(G(x)\right) in \bb{Z}[x]/F[x]$, along with the dual element description $\tfr{p} = \langle p, x - \alpha rangle$ (which is used in the encrypt function). This gives us the homomorphism
+\begin{align*}
+\varphi_{\tfr{p}_i}: \bb{Z}[x] &\rightarrow (\bb{Z}[x]/F(x))/\tfr{p}\\
+C(x) &\mapsto C(\alpha) \mod{p}
+\end{align*}
+which we use for the encryption.
+
+\subsubsection{Key generation}
+
+\emph{Notation.} We write polynomials in uppercase roman letters. For a given polynomial $G(x)$ of degree $n, (g_0, \ldots, g_n)$ denote the coefficients such that $G(x) = \sum_{i=0}^{n}{g_i x^i}$.
+
+%	\begin{program}
+%		|keygen|(pk, sk)
+%		\BEGIN
+%			F(x) = x^n + 1 \rcomment{// monic, irreducible of degree \emph{n}}
+%			\DO \{
+%				G(x) = \text{random polynomial in } $$\mathcal{B}^{even}_{\infty, n}(\mu)$$
+%				++g_0 \rcomment{// make the constant coefficient odd}
+%				p = |fmpz_poly_resultant|(G(x), F(x))
+%			\untab\}\ \WHILE p \text{ is not prime}\untab
+%			D(x) = |F_mpz_mod_poly_gcd_euclidean|(G(x), F(x))
+%			\alpha = -d_0 \rcomment{// $\alpha$ = root of $D(x)$}
+%			(r, Z(x), t) = |fmpz_poly_xgcd|(G(x), F(x))
+%			pk.k = p; pk.\alpha = \alpha \rcomment{// $pk, sk$ are simply \texttt{structs}}
+%			sk.p = p; sk.B = z_0 \mod{2p}
+%		\END
+%	\end{program}
+
+
+
+\begin{algorithm}[H]
+	\DontPrintSemicolon%
+	\SetKwProg{Kn}{}{}{}\SetKwFunction{keygen}{\tsf{keygen}}%
+	\SetFuncSty{textsf}%
+	\AlgoDisplayBlockMarkers\SetAlgoNoLine%
+	\SetNlSty{Large}{}{: }%
+	\SetStartEndCondition{ (}{)}{)}\SetAlgoBlockMarkers{\{}{\}}%
+	\SetKwRepeat{DoWhile}{do}{while}%
+	
+	\Kn(){\keygen{pk, sk}}{
+		$F(x) = x^n + 1$
+		\tcp*{{\normalfont monic, irreducible of degree \emph{n}}}\
+		\DoWhile{$p$ \normalfont{is not prime}}{
+			G(x) = \text{random polynomial in } $\mc{B}^{even}_{\infty, n}(\mu)$\\
+			$++g_0$ \tcp*{\normalfont make the constant coefficient odd}
+			$p =$ \FuncSty{fmpz\_poly\_resultan}$(G(x), F(x))$
+		}
+		$D(x) =$ \FuncSty{F\_mpz\_mod\_poly\_gcd\_euclidean}$(G(x), F(x))$\\
+		$\alpha = -d_0$ \tcp*{\normalfont $\alpha$ = root of $D(x)$}
+		$(r, Z(x), t) =$ \FuncSty{fmpz\_poly\_xgcd}$(G(x), F(x))$\\
+		$pk.k = p; pk.\alpha = \alpha$ \tcp*{\normalfont $pk, sk$ are simply \texttt{structs}}
+		$sk.p = p; sk.B = z\_0 \mod{2p}$\
+	}
+\end{algorithm}
+
+\subsubsection{Encrypt, Decrypt, Add, Mult}

@@ -1,0 +1,41 @@
+% !TEX root = ../main.tex
+% !TeX encoding = utf8
+
+
+\section{Introduction}
+
+A fully homomorphic public key encryption scheme has been a “holy grail” of cryptography for a very long time.
+In the last year this problem has been solved by Gentry, by using properties of ideal lattices. 
+Various cryptographic schemes make use of lattices, sometimes just to argue about their security (such as NTRU), in other cases lattices are vital to understand the workings of the scheme algorithms. 
+Gentry’s fully homomorphic scheme falls into the latter category.
+In this paper we present a fully homomorphic scheme which can be described using the elementary theory of algebraic number fields, and hence we do not require lattices to understand its encryption and decryption operations. However, our scheme does fall into the category of schemes whose best known attack is based on lattices.
+At a high level our scheme is very simple, and is mainly parametrized by an integer $N$ (there are other parameters which are less important).
+The public key consists of a prime p and an integer $\alpha$ modulo~$p$.
+The private key consists of either an integer $z$ (if we are encrypting bits), or an integer polynomial $Z(x)$ of degree $N-1$ (if we are encrypting general binary polynomials of degree $N-1$).
+To encrypt a message one encodes the message as a binary polynomial, then one randomizes the message by adding on two times a small random polynomial.
+To obtain the ciphertext, the resulting polynomial is evaluated at $\alpha$ modulo~$p$.
+As such, the ciphertext is simply an integer modulo~$p$ (irrespective of whether we are encrypting bits or binary polynomials of degree $N-1$).
+To decrypt in the case where we know the message is a single bit, we multiply the ciphertext by $z$ and divide by $p$. 
+We then round this rational number to the nearest integer value, and subtract the result from the ciphertext. 
+The plaintext is then recovered by reducing this intermediate result modulo~2. 
+When we are decrypting a binary polynomial we follow the same procedure, but this time we multiply by the polynomial $Z(x)$ and divide by $p$, to obtain a rational polynomial. 
+Rounding the coefficients of this polynomial to the nearest integer, subtracting from the original ciphertext, and reducing modulo two will result again in recovering the plaintext.
+
+Craig Gentry using lattice-based cryptography showed the first fully homomorphic encryption scheme as announced by IBM on June~25, 2009. 
+His scheme supports evaluations of arbitrary depth circuits. 
+His construction starts from a \emph{somewhat homomorphic} encryption scheme using ideal lattices that is limited to evaluating low-degree polynomials over encrypted data. 
+(It is limited because each ciphertext is noisy in some sense, and this noise grows as one adds and multiplies ciphertexts, until ultimately the noise makes the resulting ciphertext indecipherable.) 
+He then shows how to modify this scheme to make it \emph{bootstrappable} --- in particular, he shows that by modifying the somewhat homomorphic scheme slightly, it can actually evaluate its own decryption circuit, a self-referential property. 
+Finally, he shows that any bootstrappable somewhat homomorphic encryption scheme can be converted into a fully homomorphic encryption through a recursive self-embedding. 
+In the particular case of Gentry's ideal-lattice-based somewhat homomorphic scheme, this bootstrapping procedure effectively "refreshes" the ciphertext by reducing its associated noise so that it can be used thereafter in more additions and multiplications without resulting in an indecipherable ciphertext. 
+Gentry based the security of his scheme on the assumed hardness of two problems: certain worst-case problems over ideal lattices, and the sparse (or low-weight) subset sum problem.
+
+Regarding performance, ciphertexts in Gentry's scheme remain compact insofar as their lengths do not depend at all on the complexity of the function that is evaluated over the encrypted data.
+The computational time only depends linearly on the number of operations performed. 
+However, the scheme is impractical for many applications, because ciphertext size and computation time increase sharply as one increases the security level. 
+To obtain $2^k$ security against known attacks, the computation time and ciphertext size are high-degree polynomials in $k$. 
+Stehle and Steinfeld reduced the dependence on $k$ substantially. 
+They presented optimizations that permit the computation to be only quasi\ndash $k^{3.5}$ per boolean gate of the function being evaluated.
+
+Gentry's Ph.D. thesis provides additional details. 
+Gentry also published a high-level overview of the van~Dijk et al. construction (described below) in the March~2010 issue of Communications of the ACM.

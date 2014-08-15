@@ -1,0 +1,134 @@
+% !TEX root = ../main.tex
+% !TeX encoding = utf8
+
+
+\section{Security Analysis}
+
+We consider three aspects of security; key recovery, onewayness of the encryption and semantic security. 
+Whilst semantic security is based on what might at first appear a non-traditional problem, the other two notions of security are related to well studied problems in number theory. 
+This is similar to other notions in cryptography; for example key recovery in ElGamal is related to the DLP problem, and semantic security to the relatively obscure (for mathematicians) DDH problem. 
+However, we first show that our scheme is in some sense a specialization and optimization of Gentry's scheme.
+
+\begin{bparagraph}{Link With Gentry's Scheme.}
+	To discuss the security in more detail, we first show that our scheme is a specialization and simplification of the lattice based scheme of Gentry. 
+	The generator $\gamma$ in our scheme is  equivalent to the private basis of the ideal $J$ in Gentry's scheme, the public basis is then the two element  representation $\langle p, \theta - \alpha \rangle$. 
+	The ideal $I$ of Gentry's scheme is simply set to the principal ideal $\langle 2 \rangle$.
+	Therefore, we see that KeyGen is a specialized form of KeyGen for Gentry's scheme: in particular we use the compact two element representation $\langle p, \alpha \rangle$ of the public basis, instead of the larger HNF  representation as Gentry does.
+	
+	We now turn to the encryption algorithm. 
+	The element $C(\theta) = M(\theta) + 2 \cdot R(\theta)$ is precisely the value of $\psi '$ computed in Gentry's encryption algorithm, with a value of $\tsf{r}_\tsf{Enc}$ (in the 2\ndash norm) equal to $\sqrt{N} \cdot \mu$.
+	Gentry then produces his ciphertext	$\psi '$ by reducing $\psi '$ modulo the ideal $J$ using the HNF basis.
+	It is at this point	that we seem to depart from Gentry's presentation: we actually compute the reduction of $\psi '$ modulo~\tfr{p} using the public two element representation.
+	Given $\psi '$ as a polynomial in $\theta$, this involves replacing $\theta$ by $\alpha$ and reducing the result modulo~\tfr{p}. So given $C(x)$, we produce $c$ by simply computing $c = \iota_\tfr{p}(C(\theta)) \in F_p.$
+	However, given our earlier discussion on the HNF of the ideal given by $\langle p, \theta - \alpha \rangle$	we see that the two reduction algorithms are equivalent when we are working in	the equation order $\bb{Z}(\theta)$.
+	
+	Hence, we conclude that our scheme is a specialisation of Gentry's scheme. 
+	For the given pecialisation our key sizes are much smaller than Gentry's, whilst our ciphertexts are the same size.
+	When compared to the full generality of Gentry's scheme our ciphertexts are also much smaller than Gentry's. 
+	The link between the two schemes, and the relative simplicity of our scheme, may help shed light on parameter choices in Gentry's original scheme.
+\end{bparagraph}
+
+\begin{bparagraph}{Key Recovery}
+	Recall the public key in our scheme consists of a principal degree one prime ideal in two element representation, whilst the private key consists of the inverse of a small generator of this principal prime ideal. 
+	To see that the generator $\gamma$ is small, notice that the polynomial $G(x)$ has an $\infty$\ndash norm given roughly by $\eta$, whereas the size of $p$ is roughly $\sqrt{N}^N \eta ^ N \cdot \| F \|^{N-1}_2$. 
+	Recovering the private key given the public key is therefore an instance of the small principal ideal problem:
+	
+	\begin{definition}[Small Principal Ideal Problem (SPIP)]
+		Given a principal ideal \tfr{a} in either two element or HNF representation compute a \textquotedblleft small\textquotedblright generator of the ideal.
+	\end{definition}
+	
+	This is one of the core problems in computational number theory and has formed the basis of previous cryptographic proposals. There are currently two approaches to the above problem.
+	The first approach is a deterministic method based on the Baby-Step/Giant-Step method.
+	This takes time
+	\[
+	N^{O(N)} \cdot \sqrt{\min{(A, R)}} \cdot \arrowvert\Delta \arrowvert^{o(1)},
+	\]
+	where $\Delta$ is the discriminant of $\bb{Z}[\theta]$, $R$ is the regulator and $A = \min^{N}_{i=1} \log{\arrowvert \gamma^{(i)} \arrowvert}$ is the minimal logarithmic embedding of $\gamma$. 
+	Clearly $A$ can itself be bounded by $\eta$, a minor detail which we leave to the reader.
+	
+	The second approach to this problem is via Buchmann's sub-exponential algorithm for units and class groups.
+	This method has complexity
+	\[
+	\exp{\left( O(N \log N) \cdot \sqrt{\log{(\Delta)} \cdot \log{\log{(\Delta)}}} \right)},
+	\]
+	where again $\Delta$ is the discriminant of the order $\bb{Z}[\theta]$.
+	However, this method is	likely to produce a generator of large height, i.e. with large coefficients.
+	Indeed so large, that writing the obtained generator down as a polynomial in $\theta$ may take exponential time.
+	
+	In conclusion determining the private key given only the public key is an instance of a classical and well studied problem in algorithmic number theory.
+	In particular there are no efficient solutions for this problem, and the only sub-exponential method does not find a solution which is equivalent to our private key.
+	
+\end{bparagraph}
+
+\begin{bparagraph}{Onewayness of Encryption}
+	In this section we consider the problem of recovering a message given a ciphertext element.
+	It is readily seen that this is	equivalent to solving the following problem: Given $p$ and $\alpha, c \in \bb{F}_p $ find $x_i$ for $i=0, \dots, N-1$, such that
+	\[
+	\sum_{i=0}^{N-1}{x_i \cdot \alpha^i} = c-k \cdot p,
+	\]
+	where $x_i \leqslant \tsf{r}_\tsf{Dec}$, for some integer value of $k$.
+	
+	To recast this as a lattice problem, consider the lattice generated by the rows of the matrix $H$ given earlier.
+	Consider the lattice vector
+	\[
+	(k, -x_1, \dots, -x_n) \cdot H = (c-x_0, -x_1, \dots, -x_n).
+	\]
+	This is a lattice vector which is very close (within \tsf{r\tss{Dec}} the $\infty$\ndash norm, or $\sqrt{N} \cdot \tsf{r}_\tsf{Dec}$ in the 2\ndash norm) to the non-lattice vector $(c, 0, \dots, 0)$. Hence, determining the underlying plaintext given the ciphertext is an instance of the closest vector problem.
+	
+	However, the underlying lattice is a well-studied lattice in algorithmic number theory.
+	A lattice generated by a matrix such as $H$, namely a matrix in Hermite Normal Form in which all but one diagonal entry is equal to one, is probably the most studied	lattice problem from the computational perspective in number theory.
+	Thus whilst we are unable to make use of modern worst-case/average-case reductions for our scheme, the underlying lattice problem is well studied.
+	
+	However, for later use, we will recap on the analysis Gentry has given for this problem. 
+	Although one should bear in mind that Gentry's analysis is for a general lattice arising from the HNF of an ideal and not for the specific one in our scheme.
+	The best known attack on Gentry's scheme is one of lattice reduction, related to the bounded distance decoding problem (BDDP). 
+	In particular it is	related to finding short/closest vectors within a multiplicative factor of \tsf{r\tss{Dec}/r\tss{Enc}} in a lattice of dimension $N$.
+	If we set
+	\[
+	2^\epsilon = \frac{\tsf{r}_\tsf{Dec}}{\tsf{r}_\tsf{Enc}} = \frac{\sqrt{N} \cdot \eta}{2 \cdot \delta_\infty \cdot \mu},
+	\]
+	then it is believed that solving BDDP has difficulty $2^{N/\epsilon}$.
+	We shall refer to the value $2^{N/\epsilon}$ the security level of our somewhat homomorphic scheme.
+\end{bparagraph}
+
+\begin{bparagraph}{Semantic Security}
+	Finally we discuss the semantic security of our somewhat homomorphic encryption scheme. 
+	Consider the following distinguishing problem:
+	\begin{definition}[Polynomial Coset Problem (PCP)]
+		he challenger first	selects $b \leftarrow _R \{0, 1\}$ and runs {\normalfont \tsf{KeyGen}} as above to obtain a value of $\alpha$ and $p$. If $b=0$ then the challenger performs
+		\begin{defaultlist}
+			& $R(x) \leftarrow _R \mc{B}_{\infty, N}({\normalfont \tsf{r}_\tsf{Enc}})$.
+			& $r \leftarrow R(\alpha) \pmod{p}$.
+		\end{defaultlist}
+		\noindent
+		Whilst if $b = 1$ the challenger performs
+		\begin{defaultlist}
+			& $r \leftarrow _R \bb{F}_p$.
+		\end{defaultlist}
+		\noindent
+		Given ${\normalfont (r, \tsf{PK})}$ the problem is to guess whether $b=0$ or $b=1$.
+	\end{definition}
+	\noindent
+	We call the problem the Polynomial Coset Problem as it is akin to Gentry's Ideal Coset Problem.
+	The problem basically says one cannot determine	whether $r$ is the evaluation of some small polynomial at $\alpha$ or is a random value modulo~$p$.
+	Note that the size of the space $\bb{B}_{\infty, N}(\tsf{r}_\tsf{Enc})$ is roughly $\tsf{r}_\tsf{Enc}^N$, whereas $\bb{F}_p$ size $\eta^N$. 
+	So if \tsf{r\tss{Enc}} is much smaller than $\eta$, we are trying to distinguish a relatively small space within a larger one.
+	Note, in the case where $b=0$ we generate the value $R(x)$ from $\mc{B}_{\infty, N}(\tsf{r}_\tsf{Enc})$ as opposed to $\mc{B}_{\infty, N}(\tsf{r}_\tsf{Dec})$, since we are interested in arguing about semantic security for what are the simplest ciphertexts to break.
+	
+	\begin{theorem}
+		Suppose there is an algorithm $\mc{A}$ which breaks the semantic security of our somewhat homomorphic scheme with advantage $\epsilon$.
+		Then there is an algorithm $\mc{B}$, running in about the same time as $\mc{A}$, which solves the PCP with advantage $\epsilon/2$.
+	\end{theorem}
+	
+	\begin{capsproof}
+		The algorithm $\mc{B}$ creates a challenge ciphertext for algorithm $\mc{A}$ from its own challenge $(r, \tsf{PK})$ by setting
+		\[
+		c \leftarrow (M_\beta(\alpha)+2 \cdot r) \pmod{p},
+		\]
+		where $M_0$ and $M_1$ are $\mc{A}$'s two challenge messages and $\beta \leftarrow _R \{0, 1\}$ is $\mc{B}$'s choice of a challenge bit. $\mc{A}$ sends back a guess $\beta '$ for $\beta$ and $\mc{B}$ returns $\beta \xor \beta '$.
+		
+		When $b=0$ in the PCP problem, it is clear that the challenge ciphertext $c$ has the correct distribution, so $\mc{B}$ obtains the same advantage as $\mc{A}$, namely $\epsilon$.
+		When $b=1$, $r$ is uniformly random modulo~$p$ and since $p$ is odd, $2r$ is uniformly random modulo~$p$ and therefore so is $c$.
+		Hence, the advantage of $\mc{A}$ is 0, which implies that $\mc{B}$'s overall advantage is $\epsilon/2$.
+	\end{capsproof}
+\end{bparagraph}

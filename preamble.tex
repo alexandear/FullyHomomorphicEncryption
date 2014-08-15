@@ -1,0 +1,120 @@
+% !TEX root = main.tex
+% !TeX encoding = utf8
+
+
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage{cmap}
+\usepackage[utf8]{inputenc}
+\usepackage{yfonts}
+
+\usepackage{fixltx2e}
+
+\input glyphtounicode
+\pdfgentounicode=1
+
+\usepackage{amsmath, amsfonts, amssymb, amsthm, mathtools}
+\usepackage{icomma}
+\usepackage{multicol}
+
+\usepackage{titlesec}	% for sections
+
+\usepackage[left=2.54cm, right=2.54cm, top=2.54cm, bottom=2.54cm]{geometry}
+
+\usepackage[ampersand]{easylist}
+
+\usepackage{hyperref}
+
+% Algorithm
+\usepackage[]{algorithm2e}
+\LinesNumbered
+%\usepackage{algorithmicx}
+%\usepackage[ruled]{algorithm}
+%\usepackage{algpseudocode}
+%\usepackage{algpascal}
+%\usepackage{algc}
+
+% Program
+%\usepackage{program}
+%\NumberProgramstrue
+%\renewcommand{\prognumstyle}[3]{#2:}
+%\renewcommand{\BEGIN}{\qtab\hbox{\{}\ }
+%\renewcommand{\END}{\untab \}}
+
+
+% Theorem
+\makeatletter
+\def\th@plain{%
+	\thm@notefont{}% same as heading font
+	\itshape % body font
+}
+\def\th@definition{%
+	\thm@notefont{}% same as heading font
+	\normalfont % body font
+}
+\makeatother
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+
+\newenvironment{capsproof}[1][\proofname]{\proof[\scshape #1:]}{\endproof}
+
+% Quotes
+%\newif\ifquoteopen
+%\catcode`\"=\active % lets you define `"` as a macro
+%\DeclareRobustCommand*{"}{%
+%	\ifquoteopen
+%	\quoteopenfalse ''%
+%	\else
+%	\quoteopentrue ``%
+%	\fi
+%}
+
+\title{Fully homomorphic encryption\\
+	\vspace{2mm}
+	{\large Testing and comparison to RSA}}
+\author{V. Rakovtsii, O. Redko, S. Kurilo, V. Shyika}
+\date{\today}
+
+
+% % Commands
+\newcommand{\ndash}{\nobreakdash --}
+\newcommand{\sectionbreak}{\clearpage} % sections on new pages
+
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+
+\newcommand{\tfr}[1]{\textfrak{#1}}
+\newcommand{\tsf}[1]{\textsf{#1}}
+\newcommand{\tbf}[1]{\textbf{#1}}
+\newcommand{\tss}[1]{\textsubscript{#1}}
+
+\newcommand*\xor{\mathbin{\oplus}}
+
+
+% % Styles
+
+% Paragraph (Sans, before and after 2ex)
+\newenvironment{sfparagraph}{
+	\vspace{2ex}\noindent\sffamily\nolinebreak
+}{\vspace{2ex}}
+
+% Paragraph (bold, before 2ex)
+\newenvironment{bparagraph}[1]{
+	\vspace{2ex}\noindent\tbf{#1. }\nolinebreak 
+}{}
+
+% List
+\newenvironment{defaultlist}{
+	\begin{easylist}
+		\ListProperties(Hide=100, Hang=true, Progressive=2ex, Style*=-- , Style2*=$\bullet$ )
+	}{\end{easylist}}
+
+% Paragraphs with name (sfparagraph) and list (defaultlist)
+\newenvironment{textalgorithm}[1]{
+	\begin{sfparagraph}
+		#1
+	\end{sfparagraph}
+	\begin{defaultlist}
+	}{\end{defaultlist}}
+
