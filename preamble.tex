@@ -7,8 +7,10 @@
 \usepackage{cmap}
 \usepackage[utf8]{inputenc}
 \usepackage{yfonts}
-
 \usepackage{fixltx2e}
+
+% Margins
+\usepackage[left=2.54cm, right=2.54cm, top=2.54cm, bottom=2.54cm]{geometry}
 
 \input glyphtounicode
 \pdfgentounicode=1
@@ -16,14 +18,27 @@
 \usepackage{amsmath, amsfonts, amssymb, amsthm, mathtools}
 \usepackage{icomma}
 \usepackage{multicol}
-
-\usepackage{titlesec}	% for sections
-
-\usepackage[left=2.54cm, right=2.54cm, top=2.54cm, bottom=2.54cm]{geometry}
-
 \usepackage[ampersand]{easylist}
-
 \usepackage{hyperref}
+
+% Sections
+\usepackage{titlesec}
+\usepackage{chngcntr}
+\counterwithin{figure}{section} % Numbering of figures
+
+% Plots
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usetikzlibrary{positioning}
+
+% Tables
+\usepackage{tabulary}
+
+% Force positioning of figures
+\usepackage{float}
+
+
 
 % Algorithm
 \usepackage[]{algorithm2e}
@@ -118,3 +133,15 @@
 	\begin{defaultlist}
 	}{\end{defaultlist}}
 
+% Bibliography
+\usepackage[backend=biber,bibencoding=utf8,sorting=ynt,style=authoryear]{biblatex}
+\addbibresource{references.bib}
+
+\defbibenvironment{bibliography}
+{\enumerate{}
+	{\setlength{\leftmargin}{\bibhang}%
+		\setlength{\itemindent}{-\leftmargin}%
+		\setlength{\itemsep}{\bibitemsep}%
+		\setlength{\parsep}{\bibparsep}}}
+{\endenumerate}
+{\item}

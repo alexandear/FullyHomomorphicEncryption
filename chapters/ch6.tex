@@ -4,3 +4,75 @@
 
 \section{Practical tests and comparison to RSA}
 
+We now examine a practical instantiation of our scheme.
+We compare fully homomorphic scheme with RSA encryption (with 1024 bits key length).
+All tests were run on the following machine:
+
+\noindent
+\begin{tabulary}{\textwidth}{|L|L|}
+	\hline
+	\textbf{Parameter} & \textbf{Value} \\ \hline
+	Processor & Intel(R) Core(TM)~i7-3820~CPU @ 3.60GHz, 3601~Mhz, 4~Core(s), 8~Logical Processor(s)\\ \hline
+	Installed Physical Memory (RAM) & 8~GB\\ \hline
+	System Type & x64-based PC \\ \hline
+	OS & Microsoft Windows~7 Professional 6.1.7601 Service Pack~1 Build~7601 \\ \hline
+\end{tabulary}
+
+\subsection{Setup configuration}
+
+Tests were run both locally and via network connection.
+Though, results are presented for local tests in order to exclude network time affections.
+
+\vspace{0.5cm}
+\begin{tikzpicture}[rounded corners=2pt,inner sep=10pt,node distance=1cm]
+	\node [draw](client) {\textit{Client}};
+	\node [draw,right=of client] (server) {\textit{Server}};
+	\draw [<->] (client) -- (server);
+\end{tikzpicture}
+
+\subsubsection{Client-side operations}
+
+While using fully homomorphic scheme, client is assigned to perform encryption and decryption by himself so that before sending any information to server it will encrypt its data and after the result is received from the server, it must be decrypted back in order to get plain text.
+
+\subsubsection{Server-side operations}
+Server in this setup is only required to perform only three basic operations:
+\begin{itemize}
+	\item Adding
+	\item Multiplying
+	\item Modulo
+\end{itemize}
+
+\subsection{Test results}
+
+\subsubsection{Key pair generation time}
+
+\pgfplotstableread{data/testresults.dat}{\testresults}
+\newcommand{\testresultplot}[3]{%
+	\begin{figure}[H] %
+		\centering %
+		\begin{tikzpicture} %
+			\begin{axis}[xlabel={Test case},ylabel={Execution time, s},clip=false, width=16cm, height=10cm, scale=0.8, xtick={0,20,...,100}] %
+				\addplot [only marks, mark=square*, blue] table[x expr=\lineno+1, y=#1] {\testresults}; %
+				\addplot [only marks, mark=o] table[x expr=\lineno+1, y=#2] {\testresults}; %
+			\end{axis} %
+		\end{tikzpicture} %
+		\caption{#3} %
+	\end{figure} %
+	}
+
+\testresultplot{generatecrypto}{generatersa}{Key pair generation times}
+
+Here we see that for RSA it takes around a second to generate public-secret key pair, but for FHE it may took up to 10.5 seconds to do the same.
+
+\subsubsection{Message payload length}
+Typical increasing of a message payload for RSA encryption is in about 30 times while for FHE this number depends on selected parameters in our tests resulting in 40 times increase.
+
+\subsubsection{Encryption time}
+
+\testresultplot{encryptioncrypto}{encryptionrsa}{Encryption times}
+
+As we see, encryption time drastically differs between RSA and FHE. Encryption times for RSA is nearly zero, but for FHE it may take dozens of seconds to encrypt a very small message.
+
+\subsubsection{Decryption time}
+
+\testresultplot{decryptioncrypto}{decryptionrsa}{Decryption times}
